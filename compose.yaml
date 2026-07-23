@@ -2,18 +2,24 @@ services:
   caddy:
     # Use fixed version tag in production!
     image: caddy:latest
+    # Restart this service unless container is stopped.
     restart: unless-stopped
+    cap_add:
+      # for ACME/DNS or QUIC (optional) - give caddy permission to modify network stack settings
+      - NET_ADMIN
     ports:
+      # Map HTTPS and HTTP ports
       - "80:80"
       - "443:443"
       - "443:443/udp"
     volumes:
-      # - ./conf:/etc/caddy
-      - ./public:/srv
+      - $PWD/conf:/etc/caddy
+      - $PWD/public:/srv
+      # Mount Caddy data volume for persisting TLS certificates
       - caddy_data:/data
-      # - caddy_config:/config
+      - caddy_config:/config
 
 volumes:
   caddy_data:
-  # caddy_config:
+  caddy_config:
 

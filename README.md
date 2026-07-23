@@ -30,3 +30,18 @@ docker run -d -p 80:80 \
 curl http://localhost/
 ```
 
+## Using the compose.yaml file
+
+You can also start a caddy container using the [compose.yaml](./compose.yaml) file:
+
+```sh
+docker compose up -d
+```
+
+When opening `localhost` you should see a "Caddy works!" welcome page.
+
+If you want to know more about the `compose.yaml` format you can have a look at:
+- https://hub.docker.com/_/caddy#docker-compose-example
+- https://caddyserver.com/docs/running#docker-compose
+- https://github.com/moofoo/compose-caddy-tutorial
+

@@ -9,8 +9,9 @@ services:
       - "443:443"             # Map HTTPS port
       - "443:443/udp"         # For HTTP/3
     environment:
+      - DOMAIN=${DOMAIN:-localhost}      # Default to 'localhost' if not set
+      - GITHUB_REPO=${GITHUB_REPO:-MoritzHauff/caddy_container_template}
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}   # Optional: GitHub token (for private repos)
-      - DOMAIN=${DOMAIN:-localhost}      # Default to localhost if not set
     volumes:
       - caddy_data:/data      # Persist TLS certificates
       - caddy_config:/config  # Persist Caddy config
@@ -23,10 +24,14 @@ services:
 
         echo "TOKEN=[$$GITHUB_TOKEN]"
 
+        echo "REPO=$$GITHUB_REPO"
+
         if [ -n "$$GITHUB_TOKEN" ]; then
-          git clone https://$$GITHUB_TOKEN@github.com/your-username/your-repo.git /repo
+          echo "Using access token to clone (private) repo."
+          git clone https://$$GITHUB_TOKEN@github.com/$$GITHUB_REPO.git /repo
         else
-          git clone https://github.com/MoritzHauff/caddy_container_template.git /repo
+          echo "Clone public repo without access token."
+          git clone https://github.com/$$GITHUB_REPO.git /repo
         fi
 
         # remove /srv directory

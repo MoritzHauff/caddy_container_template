@@ -45,3 +45,20 @@ If you want to know more about the `compose.yaml` format you can have a look at:
 - https://caddyserver.com/docs/running#docker-compose
 - https://github.com/moofoo/compose-caddy-tutorial
 
+## Using the Dockerfile
+
+Alternatively you can also create an image using the Dockerfile:
+
+```sh
+docker build \
+  --build-arg GITHUB_REPO=https://github.com/MoritzHauff/caddy_container_template.git \
+  --build-arg DOMAIN=example.com \
+  -t my-caddy-site .
+```
+
+Start this container with:
+
+```sh
+docker run -p 80:80 -p 443:443 -p 443:443/udp my-caddy-site
+```
+

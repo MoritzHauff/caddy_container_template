@@ -18,18 +18,35 @@ services:
       # - $PWD/public:/srv    # You could mount a local directory to provide the site data
       # But instead donwload a website from a private or public github repo
     command: >
-      sh -c "
-      apk add --no-cache git &&  # Install Git (Alpine-based image)
-      if [ -n \"$$GITHUB_TOKEN\" ]; then
-        git clone https://$$GITHUB_TOKEN@github.com/your-username/your-repo.git /srv;
-      else
-        git clone https://github.com/your-username/your-repo.git /srv;
-      fi &&
-      echo $DOMAIN &&
-      caddy run --config /etc/caddy/Caddyfile
-      "
+      sh -c '
+        apk add --no-cache git  # Install Git (Alpine-based image)
+
+        echo "TOKEN=[$$GITHUB_TOKEN]"
+
+        if [ -n "$$GITHUB_TOKEN" ]; then
+          git clone https://$$GITHUB_TOKEN@github.com/your-username/your-repo.git /repo
+        else
+          git clone https://github.com/MoritzHauff/caddy_container_template.git /repo
+        fi
+
+        # remove /srv directory
+        rm -r /srv
+
+        # link public site from repo to /srv
+        ln -s /repo/public /srv
+
+        echo "Serving on domain: $$DOMAIN"
+
+        exec caddy run --config /etc/caddy/Caddyfile
+      '
+    networks:
+      - caddy_net
 
 volumes:
   caddy_data:
   caddy_config:
+
+networks:
+  caddy_net:
+    driver: bridge
 

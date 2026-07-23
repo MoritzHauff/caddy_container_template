@@ -1,5 +1,5 @@
 
-{env.DOMAIN} {
+{$DOMAIN:localhost} {  # Use env DOMAIN if available otherwise use default 'localhost'
     root * /srv
     file_server
 }

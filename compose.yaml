@@ -1,23 +1,33 @@
 services:
   caddy:
-    # Use fixed version tag in production!
-    image: caddy:latest
-    # Restart this service unless container is stopped.
-    restart: unless-stopped
+    image: caddy:latest       # Use fixed version tag instead of latest in production!
+    restart: unless-stopped   # Restart this service unless container is stopped.
     cap_add:
-      # for ACME/DNS or QUIC (optional) - give caddy permission to modify network stack settings
-      - NET_ADMIN
+      - NET_ADMIN             # For ACME/DNS or QUIC (optional) - give Caddy permission to modify network stack settings.
     ports:
-      # Map HTTPS and HTTP ports
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
+      - "80:80"               # Map HTTP port
+      - "443:443"             # Map HTTPS port
+      - "443:443/udp"         # For HTTP/3
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}   # Optional: GitHub token (for private repos)
+      - DOMAIN=${DOMAIN:-localhost}      # Default to localhost if not set
     volumes:
-      - $PWD/conf:/etc/caddy
-      - $PWD/public:/srv
-      # Mount Caddy data volume for persisting TLS certificates
-      - caddy_data:/data
-      - caddy_config:/config
+      - caddy_data:/data      # Persist TLS certificates
+      - caddy_config:/config  # Persist Caddy config
+      - $PWD/conf:/etc/caddy  # Don't mount Caddy file directly https://hub.docker.com/_/caddy#basic-usage
+      # - $PWD/public:/srv    # You could mount a local directory to provide the site data
+      # But instead donwload a website from a private or public github repo
+    command: >
+      sh -c "
+      apk add --no-cache git &&  # Install Git (Alpine-based image)
+      if [ -n \"$$GITHUB_TOKEN\" ]; then
+        git clone https://$$GITHUB_TOKEN@github.com/your-username/your-repo.git /srv;
+      else
+        git clone https://github.com/your-username/your-repo.git /srv;
+      fi &&
+      echo $DOMAIN &&
+      caddy run --config /etc/caddy/Caddyfile
+      "
 
 volumes:
   caddy_data:

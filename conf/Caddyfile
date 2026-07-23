@@ -1,6 +1,15 @@
 
 {$DOMAIN:localhost} {  # Use env DOMAIN if available otherwise use default 'localhost'
     root * /srv
-    file_server
+
+    encode gzip
+
+    file_server {
+        hide .git
+    }
+
+    log {
+        output file /var/log/caddy/my-static-site.log
+    }
 }
 
